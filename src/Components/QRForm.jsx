@@ -219,7 +219,7 @@ const QRForm = () => {
               <h2>{namedata.name}</h2>
               <QRCodeCanvas
                 id="qr-code-canvas"
-                value={`http://localhost:3000/user/${userId}`}
+                value={`https://qr-frontend-beta.vercel.app/user/${userId}`}
                 size={300}
                 fgColor="#000000"
                 bgColor="#ffffff"
