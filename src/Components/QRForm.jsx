@@ -38,47 +38,47 @@ const QRForm = () => {
     }));
   };
 
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
+const handleFormSubmit = async (e) => {
+  e.preventDefault();
 
-    const data = new FormData();
-    Object.keys(formData).forEach((key) => {
-      data.append(key, formData[key]);
+  const data = new FormData();
+  Object.keys(formData).forEach((key) => {
+    data.append(key, formData[key]);
+  });
+
+  try {
+    // Update this URL for production
+    const response = await axios.post(`https://qr-backend-rho.vercel.app/api/qrdata`, data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
     });
 
-    try {
-      const response = await axios.post(`https://qr-backend-rho.vercel.app/api/qrdata`, data, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+    if (response.status === 201) {
+      const { userId } = response.data;
+      setUserId(userId);
+      setIsSubmitted(true);
+      setMessage('Form submitted successfully!');
+      setMessageType('success');
+      setNamedata(response.data.qrdata);
+      setFormData({
+        name: '',
+        email: '',
+        work_email: '',
+        organization: '',
+        phone: '',
+        address: '',
+        youtube_url: '',
+        facebook_url: '',
+        linkden_url: '',
+        twitter_url: '',
+        profileImage: null
       });
-
-      if (response.status === 201) {
-        const { userId } = response.data;
-        setUserId(userId);
-        setIsSubmitted(true);
-        setMessage('Form submitted successfully!');
-        setMessageType('success');
-        setNamedata(response.data.qrdata);
-        setFormData({
-          name: '',
-          email: '',
-          work_email: '',
-          organization: '',
-          phone: '',
-          address: '',
-          youtube_url: '',
-          facebook_url: '',
-          linkden_url: '',
-          twitter_url: '',
-          profileImage: null
-        });
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      setMessage('Error: Please check the data.');
-      setMessageType('error');
     }
-  };
-
+  } catch (error) {
+    console.error('Error submitting form:', error);
+    setMessage('Error: Please check the data.');
+    setMessageType('error');
+  }
+};
   const downloadQRCode = () => {
     const canvas = document.createElement('canvas');
     const qrCanvas = document.getElementById('qr-code-canvas');
@@ -217,13 +217,14 @@ const QRForm = () => {
           <div className="form-submitted">
             <div id="qr-code-download" className="qr-code-container">
               <h2>{namedata.name}</h2>
-              <QRCodeCanvas
-                id="qr-code-canvas"
-                value={`https://qr-frontend-beta.vercel.app/user/${userId}`}
-                size={300}
-                fgColor="#000000"
-                bgColor="#ffffff"
-              />
+             <QRCodeCanvas
+  id="qr-code-canvas"
+  value={`https://qr-frontend-beta.vercel.app/user/${userId}`} // Update this to the frontend URL
+  size={300}
+  fgColor="#000000"
+  bgColor="#ffffff"
+/>
+
               <p>ID: {userId}</p>
             </div>
             <button onClick={downloadQRCode}>Download QR Code</button>
