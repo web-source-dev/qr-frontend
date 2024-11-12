@@ -16,7 +16,6 @@ const QRForm = () => {
     facebook_url: '',
     linkden_url: '',
     twitter_url: '',
-    profileImage: null // New state for profile image
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -31,12 +30,7 @@ const QRForm = () => {
   };
 
 
-  const handleImageChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      profileImage: e.target.files[0]
-    }));
-  };
+
 
 const handleFormSubmit = async (e) => {
   e.preventDefault();
@@ -48,9 +42,7 @@ const handleFormSubmit = async (e) => {
 
   try {
     // Update this URL for production
-    const response = await axios.post(`https://qr-backend-rho.vercel.app/api/qrdata`, data, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+    const response = await axios.post(`https://qr-backend-rho.vercel.app/api/qrdata`, data);
 
     if (response.status === 201) {
       const { userId } = response.data;
@@ -70,7 +62,6 @@ const handleFormSubmit = async (e) => {
         facebook_url: '',
         linkden_url: '',
         twitter_url: '',
-        profileImage: null
       });
     }
   } catch (error) {
@@ -115,7 +106,7 @@ const handleFormSubmit = async (e) => {
         <h1>Form Submission</h1>
 
         {!isSubmitted ? (
-          <form className="qr-form" onSubmit={handleFormSubmit} encType="multipart/form-data">
+          <form className="qr-form" onSubmit={handleFormSubmit} >
             <div className="form-inputs-flex">
               <div className="left-side-form">
                 <input
@@ -198,14 +189,7 @@ const handleFormSubmit = async (e) => {
                 />
               </div>
             </div>
-            <input
-            className='profile-img-form'
-                  type="file"
-                  name="profileImage"
-                  onChange={handleImageChange}
-                  accept="image/*"
-                  required
-                />
+
             <button className="submit-btn" type="submit">Submit</button>
             {message && (
               <p className={messageType === 'success' ? 'success-message' : 'error-message'}>
