@@ -121,7 +121,7 @@ const ViewData = () => {
                 <div className="qr-code-all">
                   <QRCodeCanvas
                     // Encodes URL with the userId to navigate to the user details page
-                    value={`http://localhost:3000/user/${user._id}`} // Use the user._id to link to their details page
+                    value={`https://qr-frontend-beta.vercel.app/user/${user._id}`} // Use the user._id to link to their details page
                     size={70}
                   />
                 </div>
