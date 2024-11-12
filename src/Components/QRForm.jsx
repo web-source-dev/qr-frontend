@@ -8,14 +8,15 @@ const QRForm = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    work_email: '', // Added work_email
-    organization: '', // Added organization
+    work_email: '',
+    organization: '',
     phone: '',
     address: '',
     youtube_url: '',
     facebook_url: '',
     linkden_url: '',
     twitter_url: '',
+    profileImage: null,  // To store the image file
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -29,47 +30,60 @@ const QRForm = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleImageChange = (e) => {
+    setFormData((prev) => ({ ...prev, profileImage: e.target.files[0] }));
+  };
 
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
 
+    const data = new FormData();
+    Object.keys(formData).forEach((key) => {
+      if (key === 'profileImage') {
+        // Append the file separately
+        if (formData[key]) {
+          data.append('profileImage', formData[key]);
+        }
+      } else {
+        data.append(key, formData[key]);
+      }
+    });
 
-const handleFormSubmit = async (e) => {
-  e.preventDefault();
-
-  const data = new FormData();
-  Object.keys(formData).forEach((key) => {
-    data.append(key, formData[key]);
-  });
-
-  try {
-    // Update this URL for production
-    const response = await axios.post(`https://qr-backend-rho.vercel.app/api/qrdata`, data);
-
-    if (response.status === 201) {
-      const { userId } = response.data;
-      setUserId(userId);
-      setIsSubmitted(true);
-      setMessage('Form submitted successfully!');
-      setMessageType('success');
-      setNamedata(response.data.qrdata);
-      setFormData({
-        name: '',
-        email: '',
-        work_email: '',
-        organization: '',
-        phone: '',
-        address: '',
-        youtube_url: '',
-        facebook_url: '',
-        linkden_url: '',
-        twitter_url: '',
+    try {
+      const response = await axios.post(`https://qr-backend-rho.vercel.app/api/qrdata`, data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',  // This is important for file uploads
+        }
       });
+
+      if (response.status === 201) {
+        const { userId } = response.data;
+        setUserId(userId);
+        setIsSubmitted(true);
+        setMessage('Form submitted successfully!');
+        setMessageType('success');
+        setNamedata(response.data.qrdata);
+        setFormData({
+          name: '',
+          email: '',
+          work_email: '',
+          organization: '',
+          phone: '',
+          address: '',
+          youtube_url: '',
+          facebook_url: '',
+          linkden_url: '',
+          twitter_url: '',
+          profileImage: null,  // Reset the image field
+        });
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setMessage('Error: Please check the data.');
+      setMessageType('error');
     }
-  } catch (error) {
-    console.error('Error submitting form:', error);
-    setMessage('Error: Please check the data.');
-    setMessageType('error');
-  }
-};
+  };
+
   const downloadQRCode = () => {
     const canvas = document.createElement('canvas');
     const qrCanvas = document.getElementById('qr-code-canvas');
@@ -106,7 +120,7 @@ const handleFormSubmit = async (e) => {
         <h1>Form Submission</h1>
 
         {!isSubmitted ? (
-          <form className="qr-form" onSubmit={handleFormSubmit} >
+          <form className="qr-form" onSubmit={handleFormSubmit}>
             <div className="form-inputs-flex">
               <div className="left-side-form">
                 <input
@@ -147,10 +161,13 @@ const handleFormSubmit = async (e) => {
                   onChange={handleInputChange}
                   required
                 />
-                {/* Profile image upload input */}
+                <input
+                  type="file"
+                  name="profileImage"
+                  onChange={handleImageChange}
+                />
               </div>
               <div className="right-side-form">
-
                 <input
                   type="text"
                   name="organization"
@@ -190,29 +207,13 @@ const handleFormSubmit = async (e) => {
               </div>
             </div>
 
-            <button className="submit-btn" type="submit">Submit</button>
-            {message && (
-              <p className={messageType === 'success' ? 'success-message' : 'error-message'}>
-                {message}
-              </p>
-            )}
+            <button className="qr-form-btn" type="submit">Submit</button>
           </form>
         ) : (
-          <div className="form-submitted">
-            <div id="qr-code-download" className="qr-code-container">
-              <h2>{namedata.name}</h2>
-             <QRCodeCanvas
-  id="qr-code-canvas"
-  value={`https://qr-frontend-beta.vercel.app/user/${userId}`} // Update this to the frontend URL
-  size={300}
-  fgColor="#000000"
-  bgColor="#ffffff"
-/>
-
-              <p>ID: {userId}</p>
-            </div>
+          <div className="submitted-form">
+            <h3>{message}</h3>
+            <p>{messageType === 'error' ? 'Please try again!' : 'You can now download your QR code!'}</p>
             <button onClick={downloadQRCode}>Download QR Code</button>
-            <button className="back-red" onClick={() => setIsSubmitted(false)}>Back</button>
           </div>
         )}
       </div>
