@@ -4,7 +4,7 @@ import { QRCodeCanvas } from 'qrcode.react';
 import { useNavigate } from 'react-router-dom';
 
 const QRForm = () => {
-  const navigate = useNavigate();
+   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,8 +16,10 @@ const QRForm = () => {
     facebook_url: '',
     linkden_url: '',
     twitter_url: '',
-    profileImage: null,  // To store the image file
+    profileImage: null,
   });
+
+
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [userId, setUserId] = useState(null);
@@ -34,35 +36,26 @@ const QRForm = () => {
     setFormData((prev) => ({ ...prev, profileImage: e.target.files[0] }));
   };
 
-  const handleFormSubmit = async (e) => {
+   const handleFormSubmit = async (e) => {
     e.preventDefault();
-
     const data = new FormData();
-    Object.keys(formData).forEach((key) => {
-      if (key === 'profileImage') {
-        // Append the file separately
-        if (formData[key]) {
-          data.append('profileImage', formData[key]);
-        }
-      } else {
-        data.append(key, formData[key]);
-      }
+    Object.entries(formData).forEach(([key, value]) => {
+      data.append(key, value);
     });
 
     try {
       const response = await axios.post(`https://qr-backend-g8m6.vercel.app/api/qrdata`, data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',  // This is important for file uploads
-        }
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
 
       if (response.status === 201) {
-        const { userId } = response.data;
-        setUserId(userId);
+        setUserId(response.data.userId);
         setIsSubmitted(true);
         setMessage('Form submitted successfully!');
         setMessageType('success');
         setNamedata(response.data.qrdata);
+
+        // Reset form
         setFormData({
           name: '',
           email: '',
@@ -74,7 +67,7 @@ const QRForm = () => {
           facebook_url: '',
           linkden_url: '',
           twitter_url: '',
-          profileImage: null,  // Reset the image field
+          profileImage: null,
         });
       }
     } catch (error) {
@@ -85,8 +78,8 @@ const QRForm = () => {
   };
 
   const downloadQRCode = () => {
-    const canvas = document.createElement('canvas');
     const qrCanvas = document.getElementById('qr-code-canvas');
+    const canvas = document.createElement('canvas');
     const qrCodeSize = 300;
     const padding = 50;
 
@@ -103,7 +96,6 @@ const QRForm = () => {
     context.fillText(namedata.name, canvas.width / 2, 30);
 
     context.drawImage(qrCanvas, padding, 50, qrCodeSize, qrCodeSize);
-
     context.fillText(`ID: ${userId}`, canvas.width / 2, qrCodeSize + 80);
 
     const pngUrl = canvas.toDataURL('image/png');
@@ -114,13 +106,13 @@ const QRForm = () => {
   };
 
   return (
-    <div className="center-form-c">
+<div className="center-form-c">
       <div className="qr-form-container">
         <button onClick={() => navigate('/data')}>All users</button>
         <h1>Form Submission</h1>
 
         {!isSubmitted ? (
-          <form className="qr-form" onSubmit={handleFormSubmit}>
+           <form className="qr-form" onSubmit={handleFormSubmit}>
             <div className="form-inputs-flex">
               <div className="left-side-form">
                 <input
@@ -209,7 +201,7 @@ const QRForm = () => {
 
             <button className="qr-form-btn" type="submit">Submit</button>
           </form>
-        ) : (
+           ) : (
           <div className="form-submitted">
             <div id="qr-code-download" className="qr-code-container">
               <h2>{namedata.name}</h2>
