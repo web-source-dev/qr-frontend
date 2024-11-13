@@ -50,7 +50,7 @@ const QRForm = () => {
     });
 
     try {
-      const response = await axios.post(`https://qr-backend-rho.vercel.app/api/qrdata`, data, {
+      const response = await axios.post(`https://qr-backend-g8m6.vercel.app/api/qrdata`, data, {
         headers: {
           'Content-Type': 'multipart/form-data',  // This is important for file uploads
         }
@@ -210,10 +210,20 @@ const QRForm = () => {
             <button className="qr-form-btn" type="submit">Submit</button>
           </form>
         ) : (
-          <div className="submitted-form">
-            <h3>{message}</h3>
-            <p>{messageType === 'error' ? 'Please try again!' : 'You can now download your QR code!'}</p>
+          <div className="form-submitted">
+            <div id="qr-code-download" className="qr-code-container">
+              <h2>{namedata.name}</h2>
+              <QRCodeCanvas
+                id="qr-code-canvas"
+                value={`https://qr-frontend-tan.vercel.app/user/${userId}`}
+                size={300}
+                fgColor="#000000"
+                bgColor="#ffffff"
+              />
+              <p>ID: {userId}</p>
+            </div>
             <button onClick={downloadQRCode}>Download QR Code</button>
+            <button className="back-red" onClick={() => setIsSubmitted(false)}>Back</button>
           </div>
         )}
       </div>
